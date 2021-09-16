@@ -9,6 +9,9 @@ import { Question } from '../components/Question'
 
 import logoImg from '../assets/images/logo.svg'
 import deleteImg from '../assets/images/delete.svg'
+import answerImg from '../assets/images/answer.svg'
+import checkImg from '../assets/images/check.svg'
+
 
 import '../styles/room.scss'
 
@@ -31,6 +34,23 @@ export function AdminRoom() {
     })
 
     history.push('/')
+  }
+
+  async function handleHighlightQuestion(questionKey: string) {
+    const database = getDatabase()
+    const questionRef = ref(database, `rooms/${roomKey}/questions/${questionKey}`)
+
+    await update(questionRef, {
+      isHighlighted: true
+    })
+  }
+  async function handleAnswerQuestion(questionKey: string) {
+    const database = getDatabase()
+    const questionRef = ref(database, `rooms/${roomKey}/questions/${questionKey}`)
+
+    await update(questionRef, {
+      isAnswered: true
+    })
   }
 
   async function handleRemoveQuestion(questionKey: string) {
@@ -65,13 +85,31 @@ export function AdminRoom() {
         </div>
 
         <div className="questions-list">
-          {questions.map(({key, content, author}) => {
+          {questions.map(({key, content, author, isHighlighted, isAnswered}) => {
             return (
               <Question
                 key={key} 
                 content={content}
                 author={author}
+                isHighlighted={isHighlighted}
+                isAnswered={isAnswered}
               >
+                {!isAnswered && (
+                  <>
+                    <button 
+                      type="button"
+                      onClick={() => handleHighlightQuestion(key)}
+                    >
+                      <img src={checkImg} alt="Mark question as highlighted" />
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => handleAnswerQuestion(key)}
+                    >
+                      <img src={answerImg} alt="Mark question as answered" />
+                    </button>
+                  </>
+                )}
                 <button 
                   type="button"
                   onClick={() => handleRemoveQuestion(key)}
